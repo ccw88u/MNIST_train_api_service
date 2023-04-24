@@ -61,23 +61,26 @@ ENV FLASK_APP=inference.py
 
 CMD ["flask", "run", "--host=0.0.0.0", "--port=80"]
 ```
+
   - Build docker image
 ```bash=
 sudo docker build --no-cache -t "develop/mnist_inference" -f ./Dockerfile .
 ```
+  
   - Run in test docker container
 ```bash=
 sudo docker run --name inference_mnist_api -d -p 8888:80 develop/mnist_inference
 ```
-  - Inference for port: 8888
 
+  - Inference for port: 8888 docker container
 ```bash=
 image_b64_3=$(base64 ./3.jpg | tr -d '\n');echo $image_b64_3
 curl -X POST -H "Content-Type: application/json" -d '{"image": "'$image_b64_3'"}' http://localhost:8888/predict
 ```
+
 ![](https://imgur.com/Vtx7giN.png)
 
-  - push docker hub
+  - push image to docker hub
 
 ```
 sudo sudo docker tag 9fc4e7c2f061 ponddy/mnist_inference:v1
@@ -89,7 +92,8 @@ sudo docker push ponddy/mnist_inference:v1
 
   - K8S service / deployment / ingress setting
     - service / deplpyment : ==mnist-prd.yaml==
-```
+
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -134,12 +138,14 @@ spec:
     app: ml-mnist
 
 ```
-    - apply mnist-prd.yaml
+
+  - apply mnist-prd.yaml
 ```bash=
 kubectl apply -f mnist-prd.yaml
 ```
-    - ingress: ingress_ML-prd.yaml
-```
+
+  - ingress: ingress_ML-prd.yaml
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -165,14 +171,36 @@ spec:
             port:
               name: http                 
 ```
-   - apply ingress_ML-prd.yaml
+  - apply ingress_ML-prd.yaml
 ```bash=
 kubectl apply -f ingress_ML-prd.yaml
 ```
+
    - Views pod / service / deployment / ingress
+```bash=
+echo "========================ml-prd==============================="
+echo "------------------------------------------------------------"
+echo "              pod"
+echo "------------------------------------------------------------"
+kubectl get pods -n ml-prd -o wide
+echo "------------------------------------------------------------"
+echo "              deployments"
+echo "------------------------------------------------------------"
+kubectl get deployments -n ml-prd -o wide
+echo "------------------------------------------------------------"
+echo "              autoscaling status"
+echo "------------------------------------------------------------"
+kubectl get hpa -n ml-prd
+echo "------------------------------------------------------------"
+echo "              ingress description"
+echo "------------------------------------------------------------"
+kubectl describe ingress ml-prd-ingress -n ml-prd
+echo "------------------------------------------------------------"
+```
+
 ![](https://imgur.com/MpyhyGC.png)
 
-   - ==Call k8s mnist example== 
+  - ==Call k8s mnist example== 
      - Endpoint: https://ml-prd.k8s.wenwen999.link/mnist/predict
 ```
 image_b64_3=$(base64 ./3.jpg | tr -d '\n');echo $image_b64_3
