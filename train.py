@@ -67,11 +67,6 @@ input_path = './'
 training_images_filepath = join(input_path, 'coding_api/mnist-images.idx3-ubyte')
 # training_labels_filepath = join(input_path, 'coding_api/mnist-labels.idx1-ubyte')
 training_labels_filepath = join(input_path, 'coding_api/mnist-labels.idx1-ubyte')
-# test_images_filepath = join(input_path, 't10k-images-idx3-ubyte/t10k-images-idx3-ubyte')
-# test_labels_filepath = join(input_path, 't10k-labels-idx1-ubyte/t10k-labels-idx1-ubyte')
-
-# training_images_filepath, training_labels_filepath, test_images_filepath, test_labels_filepath = train_test_split(training_images_filepath, training_labels_filepath, test_size=0.2, random_state=1)
-
 
 #
 # Helper function to show a list of images with their relating titles
@@ -98,9 +93,8 @@ mnist_dataloader = MnistDataloader(training_images_filepath, training_labels_fil
 # print(x_train[0:10])
 # print(y_train[0:10])
 
+# x_test , y_test for test set
 x_train, x_test, y_train, y_test = train_test_split(x_train, y_train, test_size=0.2, random_state=1)
-
-
 # print('training_images:', x_train[0])
 # print('training_label:', x_test[0])
 
@@ -162,7 +156,7 @@ model = tf.keras.Sequential(
 model.summary()
 
 # Create the EarlyStopping callback
-early_stop = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
+early_stop = EarlyStopping(monitor='val_loss', patience=3, verbose=1)
 # Create the ModelCheckpoint callback
 checkpoint = ModelCheckpoint('best_model.h5', monitor='val_loss', save_best_only=True, verbose=1)
 
@@ -170,7 +164,7 @@ batch_size = 128
 epochs = 15
 
 model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
-
+# 20% for validation
 model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, validation_split=0.2, callbacks=[early_stop, checkpoint])
 
 # Load best loss mode

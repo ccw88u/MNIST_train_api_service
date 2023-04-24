@@ -21,6 +21,7 @@ def preprocess_image(image_b64):
     image_tensor = image_array.reshape((1, 28, 28, 1))
     return image_tensor
 
+
 @app.route('/predict', methods=['POST'])
 def predict_digit():
     image_b64 = request.json['image']
@@ -31,6 +32,7 @@ def predict_digit():
     response = {'digit': str(digit)}
     return jsonify(response)
 
+
 # Run the Flask app
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
